@@ -23,3 +23,10 @@ hs_err_pid*
 
 # Felix cache
 felix-cache/
+
+# Felix framework doc (keep changelog-*.txt only)
+runtime/doc/*
+!runtime/doc/*.txt
+
+# Felix framework base bundles (keep)
+!runtime/**/*.jar

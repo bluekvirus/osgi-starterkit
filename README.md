@@ -7,7 +7,7 @@ Apache Felix Framework [5.6.4](http://felix.apache.org/downloads.cgi)
 
 
 ### Default bundles
-- Main (`/bin/felix.jar` itself)
+- Main + Resolver + Framework (`/bin/felix.jar` itself)
 - Bundle Repository
 - Gogo Runtime
 - Gogo Command
@@ -16,8 +16,8 @@ Apache Felix Framework [5.6.4](http://felix.apache.org/downloads.cgi)
 ### Extra (required) bundles
 - Configuration Admin
 - Event Admin
-- HTTP Service Jetty (:8000/)
 - HTTP Servlet 3.0 API
+- HTTP Service Jetty (:8000/)
 - SCR (Declarative Services)
 - Log
 
@@ -26,7 +26,7 @@ Apache Felix Framework [5.6.4](http://felix.apache.org/downloads.cgi)
 - ... (sub project bundles under `/runtime/bundle/`)
 
 ### Config
-See `/runtime/conf/config.properties` for comments. It configs both Main and the other bundles loaded in the OSGI runtime.
+See `/runtime/conf/config.properties` for comments. It configs both Framework and the other bundles loaded in the OSGI runtime.
 
 
 ## Custom bundles
