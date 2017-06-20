@@ -30,3 +30,11 @@ runtime/doc/*
 
 # Felix framework base bundles (keep)
 !runtime/**/*.jar
+
+# Bnd src
+tools/bnd/src/*
+!tools/bnd/src/*.sh
+!tools/bnd/dist/**/*.jar
+
+# Project generated
+projects/*/generated
