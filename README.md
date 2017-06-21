@@ -23,6 +23,7 @@ Apache Felix Framework [5.6.4](http://felix.apache.org/downloads.cgi)
 
 ### Extra (optional) bundles
 - [Web Console](http://felix.apache.org/documentation/subprojects/apache-felix-web-console.html#configuration) (:8000/console/, deps: commons-io, commons-fileupload)
+- Bnd bndlib (deps: slf4j-api, slf4j-simple)
 - ... (sub project bundles under `/runtime/bundle/`)
 
 ### Config
