@@ -8,11 +8,12 @@ Change Log
 3. Added example sub project; (without build script)
 4. Added README.md as doc;
 5. Added bnd build tool and scripts;
+6. Added IntelliJ IDEA support;
 
 working on ...
 
-* sub project scaffolding script; (+deps?)
-* builder sub project; (using bndlib as Gogo cli)
+* sub project build script; (auto deps?)
+* builder sub project; (using bndlib in Gogo cli?)
 * session sub project; (account/user, role/permission)
 * db sub project; (K-V, SQL)
 * stream sub project;

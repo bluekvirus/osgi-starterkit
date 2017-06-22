@@ -1,23 +1,22 @@
 package com.demo.app.restapi;
 
+import org.glassfish.jersey.internal.OsgiRegistry;
+import org.glassfish.jersey.internal.util.ReflectionHelper;
+import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.servlet.ServletContainer;
+import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.*;
+import org.osgi.service.http.whiteboard.HttpWhiteboardConstants;
+
+import javax.servlet.*;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.logging.Logger;
 
-import javax.servlet.*;
-//import javax.servlet.http.*;
-
-import org.glassfish.jersey.internal.OsgiRegistry;
-import org.glassfish.jersey.internal.util.ReflectionHelper;
-import org.glassfish.jersey.server.ResourceConfig;
 //import org.glassfish.jersey.server.internal.scanning.CompositeResourceFinder;
 //import org.glassfish.jersey.server.internal.scanning.PackageNamesScanner;
-import org.glassfish.jersey.servlet.ServletContainer;
-import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.*;
-import org.osgi.service.http.whiteboard.HttpWhiteboardConstants;
 
 @Component(
 		property = {
