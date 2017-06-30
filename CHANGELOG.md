@@ -7,13 +7,15 @@ Change Log
 2. Added `start.sh` script;
 3. Added example sub project; (without build script)
 4. Added README.md as doc;
-5. Added bnd build tool and scripts;
+5. Added bnd build tool and `bnd.sh` script;
 6. Added IntelliJ IDEA support;
+7. Added Maven bnd repo support;
+8. Added Maven library support; (IntelliJ)
 
 working on ...
 
 * sub project build script; (auto deps?)
-* builder sub project; (using bndlib in Gogo cli?)
+* builder sub project; (hot rebuild and deploy)
 * session sub project; (account/user, role/permission)
 * db sub project; (K-V, SQL)
 * stream sub project;

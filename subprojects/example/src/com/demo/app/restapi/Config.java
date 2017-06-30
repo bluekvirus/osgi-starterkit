@@ -22,13 +22,13 @@ import java.util.logging.Logger;
 		property = {
 			HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN + "=/example/*",
 		})
-public class ExampleServlet implements Servlet {
+public class Config implements Servlet {
 
 	private transient ServletContainer sc;
 	//logger.info() to log
-	private static final Logger logger = Logger.getLogger(ExampleServlet.class.getName());
+	private static final Logger logger = Logger.getLogger(Config.class.getName());
 	
-	public ExampleServlet() throws URISyntaxException, ClassNotFoundException{
+	public Config() throws URISyntaxException, ClassNotFoundException{
 		ResourceConfig rc = new ResourceConfig();
 		
 		//rc.packages() not working properly atm..., add all classes manually here
