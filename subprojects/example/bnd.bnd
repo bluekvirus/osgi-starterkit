@@ -1,3 +1,6 @@
 #
 #   EXAMPLE
 #
+
+Export-Package: \
+    com.demo.app.restapi*

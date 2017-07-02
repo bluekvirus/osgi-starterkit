@@ -11,6 +11,6 @@ public class Status {
     @GET
     @Produces("text/plain")
     public String getStatus() {
-        return "active!!";
+        return "!!active!!";
     }
 }

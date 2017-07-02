@@ -4,5 +4,4 @@
 # 
 # @author Tim Lauv
 
-cd ./subprojects
-java -jar ../tools/bnd/dist/bnd.jar add project "$@"
+java -jar ../tools/bnd/dist/bnd.jar -b ./subprojects add project "$@"

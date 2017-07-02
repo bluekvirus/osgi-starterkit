@@ -67,8 +67,11 @@ public class Config implements Servlet {
 	
     @Activate
     void activate(ComponentContext context) {
-    	logger.info("Activated!" + getClass());
-    }	
+    	logger.info("Activated! " + getClass());
+    }
+
+    @Deactivate
+	void deactivate(ComponentContext context) { logger.info("Deactivated... " + getClass()); }
 	
 	@Override
 	public void destroy() {

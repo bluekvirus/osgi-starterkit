@@ -1,3 +1,9 @@
 #
 #   Shared bnd properties
 #
+
+# buildpath requires packages (instead of jars) through bnd repos (your sub project is a repo too!)
+#-buildpath: ...
+
+# classpath requires jars as OSGI bundles
+#-classpath: ${lsr;${workspace}/cnf/libs;*.jar}
