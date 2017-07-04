@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/subprojects/builder/builder.iml" filepath="$PROJECT_DIR$/subprojects/builder/builder.iml" />
       <module fileurl="file://$PROJECT_DIR$/subprojects/example/example.iml" filepath="$PROJECT_DIR$/subprojects/example/example.iml" />
     </modules>
   </component>
