@@ -2,9 +2,35 @@
 Bare minimum starting point for OSGI based web apps.
 
 
+## Quick start
+1. `git clone` this repo;
+2. `./add-project.sh <proj>` to create your own sub project for bundles;
+3. Code your sub project as normal *Java/Scala* project, specify `Export-Package: ...` in its `bnd.bnd` meta file; 
+4. Compile your `/src/**/*.java` code in the sub project;
+    - Option A: click **Build Module `<proj>`** in **IntelliJ IDEA** IDE.
+    - Option B: run `sbt` headless build.
+5. `./bundle.sh <proj>` to pack the final bundle jar (or jars if multiple `.bnd` exist);
+
+Now, you should find a `<proj>.jar` (or jars) under `/runtime/bundle/hot-deploy/apps` which will automatically install and start if your OSGI runtime is up.
+
+## IDE support (optional)
+We recommend using the [**IntelliJ IDEA CE**](https://www.jetbrains.com/idea/download/) and treat bnd projects as **Modules**. To avoid confusing developers with IDE build process and the bnd one. The IDE is treated as an enhanced text editor with advanced Java coding supports only, without the bundle (jar) packing tooling. **It is only there to compile `*.java` into `*.class` files while managing 3rd party source dependency and to hint with code auto-completion while coding**.
+
+The IDE metadata under `/.idea` supports the following **IntelliJ IDEA CE** version and above
+```
+IntelliJ IDEA 2017.1.4
+Build #IC-171.4694.23, built on June 6, 2017
+```
+
 ## Runtime
 Apache Felix Framework [5.6.4](http://felix.apache.org/downloads.cgi)
 
+
+### Keeping it up
+Use `./start.sh` to start the OSGI runtime, this will also start depended library and your custom sub project bundles. This will enter the default **Gogo** command-line for runtime commands, also monitoring hot deployments of new/existing bundles. A **Web Console** is also there to help debugging. (`:8000/console/`, see password in runtime config below)
+
+### Config
+See `/runtime/conf/config.properties` for comments. It configs both Framework and the other bundles loaded in the OSGI runtime.
 
 ### Bundles
 All of the OSGI bundles are put under `/runtime/bundle/`, the ones under `felix` are base runtime bundles loaded according to the `felix.auto.deploy.*` configure upon calling `./start.sh`. Others are loaded by **File Install** felix bundle for runtime hot deployment.
@@ -49,29 +75,16 @@ Put extra dependency jars into the libs folder if your app bundle complains **Un
 Use `./bundle.sh <project>` to have your sub project bundle built and deployed into the apps folder.
 
 
-### Config
-See `/runtime/conf/config.properties` for comments. It configs both Framework and the other bundles loaded in the OSGI runtime.
-
-
 ## Workspace (Custom bundles)
 Create sub projects under `/subprojects` (a **bnd workspace**) and build your custom bundles (**bnd projects**) within them. Other than the `/subprojects/cnf` folder any other folder should be considered bnd project as well as a **Module** in the **IntelliJ IDEA** IDE project.
 
 **Tip**: A bnd workspace is just a normal folder with an empty `cnf/build.bnd` meta file and an also empty `cnf/ext` folder. You can use `./bnd.sh add workspace <workspace>` to create them but we already created one named `subprojects` for you and pre-configured with a Maven bnd repo. 
 
 
-### IDE support
-We recommend using the [**IntelliJ IDEA CE**](https://www.jetbrains.com/idea/download/) and treat bnd projects as **Modules**. To avoid confusing developers with IDE build process and the bnd one. The IDE is treated as an enhanced text editor with advanced Java coding supports only, without the bundle (jar) packing tooling.
-
-The IDE metadata under `/.idea` supports the following **IntelliJ IDEA CE** version and above
-```
-IntelliJ IDEA 2017.1.4
-Build #IC-171.4694.23, built on June 6, 2017
-```
-
 ### Dependencies (3rd party jar)
-The involvement of the **IntelliJ IDEA** IDE is to use its awesome auto-import and code-completion support during code development phase. We also use it to pull the dependencies (including transitive ones) from Maven Central for compiling sub project bytecode. (Read on if you wonder why we can't use bnd for that...)
+The involvement of the **IntelliJ IDEA** IDE is to use its awesome auto-import and code-completion support during code development phase. **We will also use it to pull the dependencies** (including transitive ones) from Maven Central for compiling sub project bytecode. (Later sections below explain why we can't use bnd for that...)
 
-We use the normal Maven **Libraries** in **Project Structure** in the IDE without ever concerning the `deps.maven` index file and bnd. However, this way you can only inspect the dependencies listing when you open the **IntelliJ IDEA** IDE. We put libraries from Maven Central into `/subprojects/cnf/libs`. Note that this is different than the `/runtime/bundle/hot-deploy/libs` folder which is for OSGI runtime. `/subprojects/cnf/libs` is for compiling our Java code.
+We use the normal Maven **Libraries** in **Project Structure** in the IDE (without ever concerning the `deps.maven` index file and bnd repositories). However, this way you can only inspect the dependencies listing when you open the **IntelliJ IDEA** IDE. We put libraries from Maven Central into `/subprojects/cnf/libs`. Note that this is different than the `/runtime/bundle/hot-deploy/libs` folder which is for OSGI runtime. `/subprojects/cnf/libs` is for compiling our Java code.
 
 All dependency jars are shared among the sub projects, you can use different versions of the same artifact (a jar in Maven terms) in these projects for both compile and OSGI runtime. This is honored by the bnd build tool. Use `Import-Package` header in your `bnd.bnd` project bundle meta file to control versioning of the depended packages at runtime.
 
@@ -117,7 +130,7 @@ The only perk of using bnd to pull dependency jars from Maven is for convenient 
 **Tip**: Shared dependency is better for our bnd workspace setup since all of the sub projects dependency (for compiling) can be controlled in a centralized way. It helps align the deployed library bundles in the final OSGI runtime as well.
 
 ### Scaffolding a new bundle project
-run `./+subproj.sh <name>` to create a new bnd project to produce OSGI bundles (e.g Contract APIs jar and an implementation Provider jar). After getting the project folder (should contain 1 `/src` folder), under IntelliJ IDEA go to **Project Structure** --> **Modules** --> **+** --> **Import Module** --> select the folder under `/subprojects/<name>` --> **Create module from existing source**. The sub project should appear in your **1:Project** tab in the IDE.
+run `./add-project.sh <name>` to create a new bnd project to produce OSGI bundles (e.g Contract APIs jar and an implementation Provider jar). After getting the project folder (should contain 1 `/src` folder), under IntelliJ IDEA go to **Project Structure** --> **Modules** --> **+** --> **Import Module** --> select the folder under `/subprojects/<name>` --> **Create module from existing source**. The sub project should appear in your **1:Project** tab in the IDE.
 
 You need to change the compile output path of the newly added Module project to point to its own `/bin` and `/bin_test` folder which were already created by bnd. This lets the IDE to compile sub project Java code and put bytecode into `/bin` folder for bnd to pack into bundles according to `*.bnd` files later. By default, the bnd build tool doesn't concern compiling Java code, it only pulls compiled packages out of the bnd project `/bin`, the 3rd party jars (`-classpath:`) and the bnd repos (`-buildpath:`) and put them into the final bundle jar.
 
@@ -191,7 +204,7 @@ You can also choose to use `-includeresource` (or `-classpath`) instruction in `
 ## Run
 Call `./start.sh` to run the entire OSGI stack, note that if you include the Gogo jars (3 of them), you will be prompt with `g!` and entering the Gogo command shell after the stack is started. Also, if you include the Web Console jar, there will be a web console deployed for you to inspect the OSGI runtime bundles, status and logs. The logs are pretty useful for debugging your bundle exceptions.
 
-Check within `./start.sh` to see how you can load a different set of bundles to begin with and use a different configure file.
+Check within `./start.sh` to see how you can load a different set of bundles to begin with (e.g through a different configure file for production).
 
 
 ## Demo bundle

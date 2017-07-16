@@ -17,7 +17,7 @@ Change Log
 
 working on ...
 
-* session sub project; (account/user, role/permission)
+* session sub project; (account/user, role/permission, token)
 * db sub project; (K-V, SQL)
 * stream sub project;
 * task sub project;
