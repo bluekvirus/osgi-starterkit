@@ -17,11 +17,12 @@ Change Log
 
 working on ...
 
-* session sub project; (account/user, role/permission, token)
-* db sub project; (K-V, SQL)
-* stream sub project;
-* task sub project;
-* search sub project;
-* headless sub project compile; (sbt)
-* local deploy bnd repo instead of `mv *.jar`;
+* docker containers;
+* session sub project; (account/user, role/permission ==> jwttoken, session)
+* db sub project; (K-V, JSON/Doc, SQL, BigTable, Graph)
+* task/controller sub project; (Akka)
+* stream sub project; (Logstash, Kafka)
+* search sub project; (ElasticSearch)
+* headless sub project compile; (Gradle)
+* local deploy bnd repo instead of `mv *.jar` script;
 * auto runtime bundles prep script;

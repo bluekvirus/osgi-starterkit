@@ -6,15 +6,15 @@ Bare minimum starting point for OSGI based web apps.
 1. `git clone` this repo;
 2. `./add-project.sh <proj>` to create your own sub project for bundles;
 3. Code your sub project as normal *Java/Scala* project, specify `Export-Package: ...` in its `bnd.bnd` meta file; 
-4. Compile your `/src/**/*.java` code in the sub project;
+4. Compile your `/src/**/*.java or *.scala` code in the sub project;
     - Option A: click **Build Module `<proj>`** in **IntelliJ IDEA** IDE.
-    - Option B: run `sbt` headless build.
+    - Option B: run `Gradle` headless build.
 5. `./bundle.sh <proj>` to pack the final bundle jar (or jars if multiple `.bnd` exist);
 
 Now, you should find a `<proj>.jar` (or jars) under `/runtime/bundle/hot-deploy/apps` which will automatically install and start if your OSGI runtime is up.
 
 ## IDE support (optional)
-We recommend using the [**IntelliJ IDEA CE**](https://www.jetbrains.com/idea/download/) and treat bnd projects as **Modules**. To avoid confusing developers with IDE build process and the bnd one. The IDE is treated as an enhanced text editor with advanced Java coding supports only, without the bundle (jar) packing tooling. **It is only there to compile `*.java` into `*.class` files while managing 3rd party source dependency and to hint with code auto-completion while coding**.
+We recommend using the [**IntelliJ IDEA CE**](https://www.jetbrains.com/idea/download/) and treat bnd projects as **Modules**. To avoid confusing developers with IDE build process and the bnd one. The IDE is treated as an enhanced text editor with advanced Java coding supports only, without the bundle (jar) packing tooling. **It is only there to compile `*.java` or `*.scala` into `*.class` files while managing 3rd party source dependency and to hint with code auto-completion while coding**.
 
 The IDE metadata under `/.idea` supports the following **IntelliJ IDEA CE** version and above
 ```
@@ -154,7 +154,12 @@ It is Java, so you need to compile the code into bytecode before it can be packe
 Since we have setup our bnd workplace sub projects as **IntelliJ IDEA** IDE project **Module**s, it is very easy to compile the code, just click **Build Module `<proj>`** in the right-clicking menu on your **Module**.
 
 ##### Compile headlessly
-...(SBT with unmanagedBase := baseDirectory.value / ".." / "cnf" / "libs")...
+...(Gradle use IDE pulled dependency instead of download during build)...
+```
+dependencies {
+    compile fileTree(dir: '../cnf/libs', include: '*.jar')
+}
+```
 
 
 #### Bundle it
@@ -227,7 +232,7 @@ Check within `./start.sh` to see how you can load a different set of bundles to 
 [28](http://bnd.bndtools.org/chapters/825-instructions-ref.html),
 [29](http://bnd.bndtools.org/chapters/850-macros.html)
 )
-- [SBT build](http://www.scala-sbt.org/index.html)
+- [Gradle build](https://gradle.org/guides/#getting-started)
 - [Maven Repository](https://mvnrepository.com/)
 - [IntelliJ .gitignore](https://www.gitignore.io/api/intellij)
 
