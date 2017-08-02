@@ -1,0 +1,42 @@
+/**
+ * Shared Gradle build configure for all of the subprojects (in Java).
+ *
+ * settings.gradle
+ * ---------------
+ * Add your subproject folder name in its `include` directive.
+ *
+ * @author Tim Lauv
+ * @created 2017.08.01
+ * 
+ */
+subprojects {
+    apply plugin: 'java'
+
+    dependencies {
+        compile fileTree(dir: '../cnf/libs', include: '*.jar')
+    }
+
+    sourceSets {
+        main {
+            java {
+                srcDirs = ['src/java']
+            }
+            resources {
+                srcDirs = ['src/resources']
+            }
+            output.classesDir = 'bin'
+                
+        }
+        test {
+            java {
+                srcDirs = ['test/java']
+            }
+            resources {
+                srcDirs = ['test/resources']
+            }
+            output.classesDir = 'bin_test'
+        }
+    }
+
+    buildDir = 'generated'
+}

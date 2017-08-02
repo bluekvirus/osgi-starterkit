@@ -1,28 +1,30 @@
 Change Log
 ==========
 
-0.4.0+ (2017-07*)
+0.5.0+ (2017-08*)
 -----------------
 1. OSGI runtime and deps bundle sorted; (felix 5)
 2. Added `start.sh` script;
 3. Added example sub project;
 4. Added README.md as doc;
-5. Added bnd build tool and `+subproj.sh` script;
+5. Added bnd build tool and `new.sh` script;
 6. Added IntelliJ IDEA support;
 7. Added Maven bnd repo support;
 8. Added Maven library support; (IntelliJ)
 9. Added hot deploy setup;
 10. Added `bundle.sh` script;
 11. Added IntelliJ official .gitignore piece;
+12. Added headless sub project compile; (Gradle)
 
 working on ...
 
+* gradle task to call bundle.sh; (override jar task)
+* gradle sub project support +Scala;
 * docker containers;
 * session sub project; (account/user, role/permission ==> jwttoken, session)
 * db sub project; (K-V, JSON/Doc, SQL, BigTable, Graph)
 * task/controller sub project; (Akka)
 * stream sub project; (Logstash, Kafka)
 * search sub project; (ElasticSearch)
-* headless sub project compile; (Gradle)
 * local deploy bnd repo instead of `mv *.jar` script;
 * auto runtime bundles prep script;

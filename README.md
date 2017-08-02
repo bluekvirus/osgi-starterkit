@@ -4,11 +4,11 @@ Bare minimum starting point for OSGI based web apps.
 
 ## Quick start
 1. `git clone` this repo;
-2. `./add-project.sh <proj>` to create your own sub project for bundles;
+2. `./new.sh <proj>` to create your own sub project for bundles;
 3. Code your sub project as normal *Java/Scala* project, specify `Export-Package: ...` in its `bnd.bnd` meta file; 
 4. Compile your `/src/**/*.java or *.scala` code in the sub project;
     - Option A: click **Build Module `<proj>`** in **IntelliJ IDEA** IDE.
-    - Option B: run `Gradle` headless build.
+    - Option B: run `gradle :<proj>:compileJava` under `./subprojects`.
 5. `./bundle.sh <proj>` to pack the final bundle jar (or jars if multiple `.bnd` exist);
 
 Now, you should find a `<proj>.jar` (or jars) under `/runtime/bundle/hot-deploy/apps` which will automatically install and start if your OSGI runtime is up.
@@ -130,7 +130,7 @@ The only perk of using bnd to pull dependency jars from Maven is for convenient 
 **Tip**: Shared dependency is better for our bnd workspace setup since all of the sub projects dependency (for compiling) can be controlled in a centralized way. It helps align the deployed library bundles in the final OSGI runtime as well.
 
 ### Scaffolding a new bundle project
-run `./add-project.sh <name>` to create a new bnd project to produce OSGI bundles (e.g Contract APIs jar and an implementation Provider jar). After getting the project folder (should contain 1 `/src` folder), under IntelliJ IDEA go to **Project Structure** --> **Modules** --> **+** --> **Import Module** --> select the folder under `/subprojects/<name>` --> **Create module from existing source**. The sub project should appear in your **1:Project** tab in the IDE.
+run `./new.sh <name>` to create a new bnd project to produce OSGI bundles (e.g Contract APIs jar and an implementation Provider jar). After getting the project folder (should contain 1 `/src` folder), under IntelliJ IDEA go to **Project Structure** --> **Modules** --> **+** --> **Import Module** --> select the folder under `/subprojects/<name>` --> **Create module from existing source**. The sub project should appear in your **1:Project** tab in the IDE.
 
 You need to change the compile output path of the newly added Module project to point to its own `/bin` and `/bin_test` folder which were already created by bnd. This lets the IDE to compile sub project Java code and put bytecode into `/bin` folder for bnd to pack into bundles according to `*.bnd` files later. By default, the bnd build tool doesn't concern compiling Java code, it only pulls compiled packages out of the bnd project `/bin`, the 3rd party jars (`-classpath:`) and the bnd repos (`-buildpath:`) and put them into the final bundle jar.
 
@@ -154,12 +154,26 @@ It is Java, so you need to compile the code into bytecode before it can be packe
 Since we have setup our bnd workplace sub projects as **IntelliJ IDEA** IDE project **Module**s, it is very easy to compile the code, just click **Build Module `<proj>`** in the right-clicking menu on your **Module**.
 
 ##### Compile headlessly
-...(Gradle use IDE pulled dependency instead of download during build)...
+Listing the subprojects with Gradle
+```
+cd ./subprojects
+gradle projects
+```
+
+Compile a project
+```
+cd ./subprojects
+gradle :<proj>:compileJava
+```
+
+Gradle use IDE pulled dependency instead of download during build, see `./subprojects/build.gradle`
 ```
 dependencies {
     compile fileTree(dir: '../cnf/libs', include: '*.jar')
 }
 ```
+
+We have pre-configured our Gradle build to use bnd project layout.
 
 
 #### Bundle it

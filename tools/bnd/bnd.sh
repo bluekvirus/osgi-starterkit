@@ -4,4 +4,4 @@
 # 
 # @author Tim Lauv
 
-java -jar ./tools/bnd/dist/bnd.jar "$@"
+java -jar ./dist/bnd.jar "$@"
