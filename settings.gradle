@@ -1,0 +1,5 @@
+include "example"
+project(":example").projectDir = file("subprojects/example")
+
+include "abc"
+project(":abc").projectDir = file("subprojects/abc")

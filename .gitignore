@@ -44,7 +44,8 @@ hs_err_pid*
 # Gradle:
 .idea/**/gradle.xml
 .idea/**/libraries
-subprojects/.gradle
+.gradle
+!tools/gradle/**/*.jar
 
 # CMake
 cmake-build-debug/

@@ -1,0 +1,97 @@
+/**
+ * Shared Gradle build configure for all of the subprojects (Java/Scala).
+ *
+ * settings.gradle
+ * ---------------
+ * Your subproject name and folder will be added in its `include` directive.
+ *
+ * @author Tim Lauv
+ * @created 2017.08.01
+ * 
+ */
+
+apply plugin: 'idea' // for adding root project as IDEA Project
+
+/* === sub project layout and build configure === */
+
+subprojects {
+
+    apply plugin: 'idea' // for adding included (settings.gradle) subprojects as IDEA Modules
+    apply plugin: 'java'
+    apply plugin: 'scala'
+
+    repositories {
+        jcenter()
+    }
+
+    /* === global dependencies for sub project === */
+    //subprojects don't really need to specify their own deps.
+    dependencies {
+        //scala base (if you use Scala in sub project)
+        compile 'org.scala-lang:scala-library:2.12.3'
+        //osgi (services API to compile against, https://mvnrepository.com/artifact/org.osgi)
+        compile 'org.osgi:org.osgi.framework:1.8.0'
+        compile 'org.osgi:org.osgi.service.component:1.3.0'
+        compile 'org.osgi:org.osgi.service.component.annotations:1.3.0'
+        compile 'org.osgi:org.osgi.service.http.whiteboard:1.0.0'
+        //javax
+        compile 'javax.servlet:javax.servlet-api:3.1.0'
+        //libs
+        compile 'org.glassfish.jersey.containers:jersey-container-servlet:2.25.1'
+    }
+
+    sourceSets {
+        main {
+            java {
+                srcDirs = ['src/java']
+            }
+            scala {
+                srcDirs = ['src/scala']
+            }
+            resources {
+                srcDirs = ['src/resources']
+            }
+            output.classesDir = 'bin'
+                
+        }
+        test {
+            java {
+                srcDirs = ['test/java']
+            }
+            scala {
+                srcDirs = ['test/scala']
+            }
+            resources {
+                srcDirs = ['test/resources']
+            }
+            output.classesDir = 'bin_test'
+        }
+    }
+
+    buildDir = 'generated'
+
+}
+
+/* === additional helper tasks === */
+
+task wrapper(type: Wrapper) {
+    description '[OSGi-StarterKit] Generate a wrapper for other developers to use tasks without gradle installed. (./gradlew)'
+    gradleVersion = '4.0.2'
+    jarFile = file("${project.projectDir}/tools/gradle/wrapper/gradle-wrapper.jar")
+}
+
+task regenModuleLibs(dependsOn: subprojects.findAll { p -> true }.ideaModule) {
+    description '[OSGi-StarterKit] Regenerate *.iml to reflect dependencies {} change in subprojects as IDEA Modules'
+}
+
+task clearLibs(type: Delete, dependsOn: regenModuleLibs) {
+    description '[OSGi-StarterKit] Delete locally sync-ed dependencies folder ./subprojects/cnf/libs'
+    delete "${project.projectDir}/subprojects/cnf/libs"
+}
+
+//sync dependency jars into ./subprojects/cnf/libs so we can pick them into runtime later if needed.
+task syncLibs(type: Copy, dependsOn: clearLibs) {
+    description '[OSGi-StarterKit] Synchronize dependencies for subprojects (regen *.iml, clear and copy *.jar)'
+    from subprojects.configurations.compile // requires plugin: 'java'
+    into "${project.projectDir}/subprojects/cnf/libs"
+}

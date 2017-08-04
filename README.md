@@ -8,13 +8,13 @@ Bare minimum starting point for OSGI based web apps.
 3. Code your sub project as normal *Java/Scala* project, specify `Export-Package: ...` in its `bnd.bnd` meta file; 
 4. Compile your `/src/**/*.java or *.scala` code in the sub project;
     - Option A: click **Build Module `<proj>`** in **IntelliJ IDEA** IDE.
-    - Option B: run `gradle :<proj>:compileJava` under `./subprojects`.
+    - Option B: run `gradle :<proj>:classes`.
 5. `./bundle.sh <proj>` to pack the final bundle jar (or jars if multiple `.bnd` exist);
 
 Now, you should find a `<proj>.jar` (or jars) under `/runtime/bundle/hot-deploy/apps` which will automatically install and start if your OSGI runtime is up.
 
 ## IDE support (optional)
-We recommend using the [**IntelliJ IDEA CE**](https://www.jetbrains.com/idea/download/) and treat bnd projects as **Modules**. To avoid confusing developers with IDE build process and the bnd one. The IDE is treated as an enhanced text editor with advanced Java coding supports only, without the bundle (jar) packing tooling. **It is only there to compile `*.java` or `*.scala` into `*.class` files while managing 3rd party source dependency and to hint with code auto-completion while coding**.
+We recommend using the [**IntelliJ IDEA CE**](https://www.jetbrains.com/idea/download/) and treat bnd projects as **Modules**. To avoid confusing developers with IDE build process and the bnd one. The IDE is treated as an enhanced text editor with advanced Java coding supports only, without the bundle (jar) packing tooling. **It is only there to compile `*.java` or `*.scala` into `*.class` files while displaying 3rd party dependency and to hint with code auto-completion while coding**.
 
 The IDE metadata under `/.idea` supports the following **IntelliJ IDEA CE** version and above
 ```
@@ -80,13 +80,24 @@ Create sub projects under `/subprojects` (a **bnd workspace**) and build your cu
 
 **Tip**: A bnd workspace is just a normal folder with an empty `cnf/build.bnd` meta file and an also empty `cnf/ext` folder. You can use `./bnd.sh add workspace <workspace>` to create them but we already created one named `subprojects` for you and pre-configured with a Maven bnd repo. 
 
+Create a new sub project with **bnd** meta file, **Gradle** build script and **IntelliJ IDEA** module meta file by
+```
+./new.sh <proj>
+```
 
 ### Dependencies (3rd party jar)
-The involvement of the **IntelliJ IDEA** IDE is to use its awesome auto-import and code-completion support during code development phase. **We will also use it to pull the dependencies** (including transitive ones) from Maven Central for compiling sub project bytecode. (Later sections below explain why we can't use bnd for that...)
+Gradle build tool has our dependencies configured in the root `build.gradle` file. The dependencies configure is shared among the sub projects by default. We also put copies of theses libraries into `/subprojects/cnf/libs`.
 
-We use the normal Maven **Libraries** in **Project Structure** in the IDE (without ever concerning the `deps.maven` index file and bnd repositories). However, this way you can only inspect the dependencies listing when you open the **IntelliJ IDEA** IDE. We put libraries from Maven Central into `/subprojects/cnf/libs`. Note that this is different than the `/runtime/bundle/hot-deploy/libs` folder which is for OSGI runtime. `/subprojects/cnf/libs` is for compiling our Java code.
+You can use the `syncLibs` task to refresh the dependencies after changing it in the root `build.gradle` file
+```
+gradle syncLibs
+```
 
-All dependency jars are shared among the sub projects, you can use different versions of the same artifact (a jar in Maven terms) in these projects for both compile and OSGI runtime. This is honored by the bnd build tool. Use `Import-Package` header in your `bnd.bnd` project bundle meta file to control versioning of the depended packages at runtime.
+Note that `/subprojects/cnf/libs` is different than the `/runtime/bundle/hot-deploy/libs` folder which is for OSGI runtime. `/subprojects/cnf/libs` is for examining the dependency jars before picking into the deployment library folder. It is only there for you too look at. It does not concern with building your bundles in the sub projects either. **You can also use these copies for re-bundling purpose through bnd**
+
+**Tip**: Shared dependency is better for our bnd workspace setup since all of the sub projects dependency (for compiling) can be controlled in a centralized way. It helps align the deployed library bundles in the final OSGI runtime as well.
+
+You can use different versions of the same artifact (a jar in Maven terms) in these projects for both compile and OSGI runtime. This is honored by the bnd build tool. Use `Import-Package` header in your `bnd.bnd` project bundle meta file to control versioning of the depended packages at runtime.
 
 **Tip**: By default, bnd uses `Import-Package: *` for a bundle's default value for package dependency resolving in the OSGI runtime. If you have multiple versions of the same package as requirements in different bundles you can put into your `bnd.bnd` meta like this, just don't forget to put `*` in the end (or else your bundle will resolve but might be unable to activate due to lack of other imported packages indicated by `*`).
 ```
@@ -106,7 +117,7 @@ Import-Package: \
 Note that `;version` resolves to package versioning while `;bundle-version` resolves to bundle (jar) versioning.
 
 
-### Alternative deps management
+### Alternative deps management (not in use)
 The bnd build tool supports pulling dependency jars from Maven Central through its [**Maven Bnd Repository Plugin**](http://bnd.bndtools.org/plugins/maven.html) into our pre-configured bnd repo `~/.m2/repository/` (the default Maven repo on your system) using Maven coordinates set in the `/subprojects/cnf/ext/deps.maven` index file. However this does *NOT* support pulling transitive dependency jars in addition to those specified in the index file. This is by design. Since the bnd build process is not there to help compile the Java code. It only concerns pulling packages from bytecode and pack with generated `MANIFEST.MF` OSGI metadata into jars. So, be ready to add all the transitive Maven coordinates for your library manually into `deps.maven` if you want to control your compiling time dependencies (a.k.a libraries) this way.
 
 **Note:** Unlike the built-in bnd plugins, the **Maven Bnd Repository Plugin** is not enabled by default, we used the following cmd to explicitly enable it
@@ -119,7 +130,7 @@ After this, `/subprojects/cnf` will have a `MavenBndRepository.bnd` configure fi
 ```
 Note that, although this repo path seems to overlap with your system's default Maven repo. Only jars listed by `deps.maven` is made available in this bnd workspace.
 
-**Tip**: Add transitive dependencies (in coordinate format) into the `deps.maven` file as well if you want bnd to pull all dependency jars from Maven Central instead of using **Libraries** in the **IntelliJ IDEA** IDE.
+**Tip**: Add transitive dependencies (in coordinate format) into the `deps.maven` file as well if you want bnd to pull all dependency jars from Maven Central.
 
 Even though we can pull dependencies through bnd, we will need to add the `~/.m2/repository/` folder as a *Library* to the **IntelliJ IDEA** IDE project through **Project Structure** --> **Libraries** --> **+** --> **Java** --> select folder `~/.m2/repository/` with type **Jar Directory**. This is to support the auto-import and code-completion in the IDE when writing Java code, also for compiling the Java code.
 
@@ -127,12 +138,8 @@ The only perk of using bnd to pull dependency jars from Maven is for convenient 
 
 **Tip**: By our default workspace setup, you don't need to worry about using bnd to pull project dependencies. It is there, but only worth using if the whole purpose of your workspace is to combine 3rd party bundles in sub projects.
 
-**Tip**: Shared dependency is better for our bnd workspace setup since all of the sub projects dependency (for compiling) can be controlled in a centralized way. It helps align the deployed library bundles in the final OSGI runtime as well.
-
 ### Scaffolding a new bundle project
-run `./new.sh <name>` to create a new bnd project to produce OSGI bundles (e.g Contract APIs jar and an implementation Provider jar). After getting the project folder (should contain 1 `/src` folder), under IntelliJ IDEA go to **Project Structure** --> **Modules** --> **+** --> **Import Module** --> select the folder under `/subprojects/<name>` --> **Create module from existing source**. The sub project should appear in your **1:Project** tab in the IDE.
-
-You need to change the compile output path of the newly added Module project to point to its own `/bin` and `/bin_test` folder which were already created by bnd. This lets the IDE to compile sub project Java code and put bytecode into `/bin` folder for bnd to pack into bundles according to `*.bnd` files later. By default, the bnd build tool doesn't concern compiling Java code, it only pulls compiled packages out of the bnd project `/bin`, the 3rd party jars (`-classpath:`) and the bnd repos (`-buildpath:`) and put them into the final bundle jar.
+run `./new.sh <name>` to create a new bnd project to produce OSGI bundles (e.g Contract APIs jar and an implementation Provider jar). By default, the bnd build tool doesn't concern compiling Java code, it only pulls compiled packages out of the bnd project `/bin`, the 3rd party jars (`-classpath:`) and the bnd repos (`-buildpath:`) and put them into the final bundle jar.
 
 **Tip**: After changing the compile output paths. You can turn on the auto-compile feature of the **IntelliJ IDEA** IDE through **Configure** --> **Preferences** --> **Build,Execution,Deployment** --> **Compiler** --> tick **Build project automatically**.
 
@@ -151,7 +158,7 @@ It is Java, so you need to compile the code into bytecode before it can be packe
 
 
 ##### Compile through IDE
-Since we have setup our bnd workplace sub projects as **IntelliJ IDEA** IDE project **Module**s, it is very easy to compile the code, just click **Build Module `<proj>`** in the right-clicking menu on your **Module**.
+Since we have setup our bnd workplace sub projects as **IntelliJ IDEA** IDE project **Module**s throught the **idea Gradle plugin**, it is very easy to compile the code, just click **Build Module `<proj>`** in the right-clicking menu on your **Module**.
 
 ##### Compile headlessly
 Listing the subprojects with Gradle
@@ -163,13 +170,13 @@ gradle projects
 Compile a project
 ```
 cd ./subprojects
-gradle :<proj>:compileJava
+gradle :<proj>:classes
 ```
 
-Gradle use IDE pulled dependency instead of download during build, see `./subprojects/build.gradle`
+To make Gradle use a local folder (e.g `subprojects/<proj>/myLibs`) of jars as dependency, add the following into the sub project's `build.gradle`
 ```
 dependencies {
-    compile fileTree(dir: '../cnf/libs', include: '*.jar')
+    compile fileTree(dir: 'myLibs', include: '*.jar')
 }
 ```
 
