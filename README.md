@@ -3,15 +3,14 @@ Bare minimum starting point for OSGI based web apps.
 
 
 ## Quick start
-1. `git clone` this repo;
+1. `git clone` this repo then `gradle syncLibs`;
 2. `./new.sh <proj>` to create your own sub project for bundles;
 3. Code your sub project as normal *Java/Scala* project, specify `Export-Package: ...` in its `bnd.bnd` meta file; 
 4. Compile your `/src/**/*.java or *.scala` code in the sub project;
     - Option A: click **Build Module `<proj>`** in **IntelliJ IDEA** IDE.
-    - Option B: run `gradle :<proj>:classes`.
-5. `./bundle.sh <proj>` to pack the final bundle jar (or jars if multiple `.bnd` exist);
+    - Option B: run `gradle :<proj>:build`.
 
-Now, you should find a `<proj>.jar` (or jars) under `/runtime/bundle/hot-deploy/apps` which will automatically install and start if your OSGI runtime is up.
+Now, you should find a `<proj>.jar` (or jars) under `/runtime/bundle/hot-deploy/subprojects` which will automatically install and start if your OSGI runtime is up.
 
 ## IDE support (optional)
 We recommend using the [**IntelliJ IDEA CE**](https://www.jetbrains.com/idea/download/) and treat bnd projects as **Modules**. To avoid confusing developers with IDE build process and the bnd one. The IDE is treated as an enhanced text editor with advanced Java coding supports only, without the bundle (jar) packing tooling. **It is only there to compile `*.java` or `*.scala` into `*.class` files while displaying 3rd party dependency and to hint with code auto-completion while coding**.
@@ -65,14 +64,14 @@ All of the OSGI bundles are put under `/runtime/bundle/`, the ones under `felix`
 - BND bndlib (deps: slf4j-api, slf4j-simple)
 - Jersey Container servlet (deps: ..17.. jars)
 
-Put extra dependency jars into the libs folder if your app bundle complains **Unresolved requirements**. Re-deploy your app bundle after adding dependency jars.
+Put extra dependency jars into the libs folder if your sub project bundle complains **Unresolved requirements**. Re-deploy your sub project bundle after adding dependency jars.
 
 #### Application bundles
-`/runtime/bundle/hot-deploy/apps`
+`/runtime/bundle/hot-deploy/subprojects`
 
 - `<project>`.jar
 
-Use `./bundle.sh <project>` to have your sub project bundle built and deployed into the apps folder.
+Use `gradle :<project>:build` to have your sub project bundle built and deployed into the folder.
 
 
 ## Workspace (Custom bundles)
@@ -195,9 +194,8 @@ The bnd build tool doesn't know which packages (again, the whole OSGI and bnd to
 In short, (after you have sorted out the `bnd.bnd` meta file) here is the sub `<proj>` build process:
 
 1. Right-click your sub project (Module) in IDE, run **Build Module `<proj>`**;
-2. Go to **Terminal** tab, type `./bundle.sh <proj>`;
 
-That's it! The built bundle (bundles, if you have more than 1 `*.bnd` file) will be put into `/runtime/bundle/hot-deploy/apps` folder and be picked up by the *File Install* felix bundle for auto install and start.
+That's it! The built bundle (bundles, if you have more than 1 `*.bnd` file) will be put into `/runtime/bundle/hot-deploy/subprojects` folder and be picked up by the *File Install* felix bundle for auto install and start.
 
 **Tip**: Repeat the build steps when your code changes. This will automatically update the old deployment of the bundle jar in the runtime. You can remove the deployed bundle/dep jars from `/runtime/bundle/hot-deploy` to undeploy them. You can change the polling threshold by changing the following configure of the OSGI runtime
 ```
@@ -211,18 +209,18 @@ felix.fileinstall.poll=2000
 
 
 ### Deploy
-Put your bundle jar into `/runtime/bundle/hot-deploy/` to deploy, as you might have noticed, the above default `./bundle.sh` already puts the built sub project jar into `/runtime/bundle/hot-deploy/app`, if your OSGI runtime is running, this should install/update the bundle and starts it.
+Put your bundle jar into `/runtime/bundle/hot-deploy/` to deploy, if your OSGI runtime is running, this should install/update the bundle and starts it.
 
 Still, you have 2 options in deploying (more like 2 options for bundling your jar).
 
 
 #### Option A: Thin App Bundle
-By default, we encourage using the `./bundle.sh` script with light `bnd.bnd` meta (without `-classpath` and `-includereource`) for a thin application bundling scheme. This way, your sub project bundle will only contain business logic rather than the api libraries.
+By default, we encourage using a light `bnd.bnd` meta (without `-classpath` and `-includereource`) for a thin application bundling scheme. This way, your sub project bundle will only contain business logic rather than the api libraries.
 
 **Important**: At this stage, if your OSGI runtime complains, you might need to move some of the jars from `/subprojects/cnf/libs` into `/runtime/bundle/hot-deploy/libs` so the required extra packages (Class or Interface bytecode) are made available in the runtime. This might looks strange if you wonder why we need two separate libs folder to compile and run the sub project bundle jar respectively. This is by design. Short answer is we want to keep code compilation separate from bundle runtime. The APIs (Interface) your project compiled against might be fulfilled by some other Providers (Class) in the runtime. The OSGI runtime is there to share packages (Class and Interface) and service components (Instances).
 
 #### Option B: Fat All-in-One Bundle
-You can also choose to use `-includeresource` (or `-classpath`) instruction in `bnd.bnd` to merge 3rd party bundle content with your sub project bundle. This way, all of the packages and resources from your dependencies will be packed into your final jar. You still invoke `./bundle.sh` script to pack your jar but this time you don't need to worry about moving `/subprojects/cnf/libs` jars into `runtime/bundle/hot-deploy/libs` since the packages requried are already local to your bundle.
+You can also choose to use `-includeresource` (or `-classpath`) instruction in `bnd.bnd` to merge 3rd party bundle content with your sub project bundle. This way, all of the packages and resources from your dependencies will be packed into your final jar. You still pack your jar through bnd but this time you don't need to worry about moving `/subprojects/cnf/libs` jars into `runtime/bundle/hot-deploy/libs` since the packages requried are already local to your bundle.
 
 **Note**: It is only worth using **Option B** if there are not a lot of transitive jars to merge and only you are using some of the specific packages that other sub project are not interested in.
 

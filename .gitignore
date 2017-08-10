@@ -105,4 +105,4 @@ tools/bnd/src/*
 !tools/bnd/dist/**/*.jar
 
 # Project generated
-projects/*/generated
+subprojects/*/generated

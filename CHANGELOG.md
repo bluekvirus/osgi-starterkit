@@ -12,15 +12,17 @@ Change Log
 7. Added Maven bnd repo support;
 8. Added Maven library support; (Gradle)
 9. Added hot deploy setup;
-10. Added `bundle.sh` script;
+10. Added `bundle.sh` script; (Bnd)
 11. Added IntelliJ official .gitignore piece;
 12. Added headless sub project compile; (Gradle)
 13. Added headless sub project lib sync; (Gradle)
 14. Added Scala support to sub project; (Gradle)
+15. Added Kotlin support to sub project; (Gradle)
+16. Added gradle task to call bundle.sh; (override default jar task)
 
 working on ...
 
-* gradle task to call bundle.sh; (override jar task)
+* let IntelliJ pickup gradle build task in subproject Modules
 * docker containers;
 * session sub project; (account/user, role/permission ==> jwttoken, session)
 * db sub project; (K-V, JSON/Doc, SQL, BigTable, Graph)
