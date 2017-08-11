@@ -16,6 +16,8 @@ apply plugin: 'idea' // for adding root project as IDEA Project
 
 subprojects {
 
+    buildDir = 'generated' // [Caveat: kotlin plugin seems to pick the old buildDir upon applying]
+
     apply plugin: 'idea' // for adding included (settings.gradle) subprojects as IDEA Modules
     apply plugin: 'java'
     apply plugin: 'scala'
@@ -84,8 +86,6 @@ subprojects {
             output.classesDir = 'bin_test'
         }
     }
-
-    buildDir = 'generated'
 
     //use bnd tool instead for packing the jar step
     task bndJar(type: Exec, dependsOn: classes) {
