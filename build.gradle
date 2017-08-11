@@ -98,6 +98,12 @@ subprojects {
 
 /* === additional helper tasks === */
 
+task homeForIDE {
+    doLast {
+        println "Your local Gradle home is at [${gradle.gradleHomeDir}]" 
+    }
+}
+
 task wrapper(type: Wrapper) {
     description '[OSGi-StarterKit] Generate a wrapper for other developers to use tasks without gradle installed. (./gradlew)'
     gradleVersion = '4.0.2'
