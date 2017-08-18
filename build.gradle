@@ -11,6 +11,15 @@
  */
 
 apply plugin: 'idea' // for adding root project as IDEA Project
+idea {
+    // for .iml metadata generated for root IDEA Module to hide IDE default build output
+    // (this is only useful if you still clicks - Build Module - in right-click context menu)
+    module {
+        inheritOutputDirs = false
+        outputDir = file('.gradle/production')
+        testOutputDir = file('.gradle/test')
+    }
+}
 
 /* === sub project layout and build configure === */
 
@@ -19,6 +28,16 @@ subprojects {
     buildDir = 'generated' // [Caveat: kotlin plugin seems to pick the old buildDir upon applying]
 
     apply plugin: 'idea' // for adding included (settings.gradle) subprojects as IDEA Modules
+    idea {
+        // for *.iml metadata generated for any IDEA Module to use bnd project layout.
+        // (this is only useful if you still clicks - Build Module - in right-click context menu)
+        module {
+            inheritOutputDirs = false
+            outputDir = file('bin')
+            testOutputDir = file('bin_test')
+        }
+    }
+
     apply plugin: 'java'
     apply plugin: 'scala'
     apply plugin: 'kotlin'

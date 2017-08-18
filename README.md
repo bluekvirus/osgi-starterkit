@@ -6,11 +6,23 @@ Bare minimum starting point for OSGi based web apps.
 1. `git clone` this repo then `gradle syncLibs`;
 2. `./new.sh <proj>` to create your own sub project for bundles;
 3. Code your sub project as normal *Java/Scala/Kotlin* project, specify `Export-Package: ...` in its `bnd.bnd` meta file; 
-4. Compile your `/src/*.java, *.scala, *.kt` code in the sub project;
-    - Option A: click **`<proj>`** in **IntelliJ IDEA Gradle projects** window (tabs on the right by default) then click **Execute Gradle Task** (the Gradle icon) type `build` in the prompt.
+4. Build your `/src/*.java, *.scala, *.kt` code in the sub project;
+    - Option A: click **`<proj>`** in **IntelliJ IDEA Gradle projects** window (tabs on the right) then click **Execute Gradle Task** (the Gradle icon) type `build` in the prompt.
     - Option B: run `gradle :<proj>:build` in command-line in root project.
 
-Now, you should find a `<proj>.jar` (or jars) under `/runtime/bundle/hot-deploy/subprojects` which will automatically install and start if your OSGi runtime is up.
+Now, you should find a `<proj>.jar` (or jars) under `/runtime/bundle/hot-deploy/subprojects` which will automatically install and start if your OSGi runtime is up. You can change the polling threshold by changing the following configure of the OSGi runtime,
+```
+# /runtime/conf/config.properties
+...
+
+felix.fileinstall.poll=2000
+...
+
+```
+
+**Tip**: Repeat the build step when your code changes. This will automatically update the old deployment of the bundle jar in the runtime. 
+
+**Tip**: You can remove the deployed bundle/dep jars from `/runtime/bundle/hot-deploy` to undeploy them. 
 
 **Note**: We did **NOT** use any of the bnd plugins for building the bundle jar, make sure you put bundle manifest directly into the `bnd.bnd` files instead of the `build.gradle` files in the sub projects.
 
@@ -156,12 +168,10 @@ The only perk of using bnd to pull dependency jars from Maven is for convenient 
 **Tip**: By our default workspace setup, you don't need to worry about using bnd to pull project dependencies. It is there, but only worth using if the whole purpose of your workspace is to combine 3rd party bundles in sub projects.
 
 ### Scaffolding a new bundle project
-run `./new.sh <name>` to create a new bnd project to produce OSGi bundles (e.g Contract APIs jar and an implementation Provider jar). By default, the bnd build tool doesn't concern compiling Java code, it only pulls compiled packages out of the bnd project `/bin`, the 3rd party jars (`-classpath:`) and the bnd repos (`-buildpath:`) and put them into the final bundle jar.
-
-**Tip**: After changing the compile output paths. You can turn on the auto-compile feature of the **IntelliJ IDEA** IDE through **Configure** --> **Preferences** --> **Build,Execution,Deployment** --> **Compiler** --> tick **Build project automatically**.
+run `./new.sh <name>` to create a new bnd project to produce OSGi bundles (e.g usually an interface Contract APIs jar and an implementation Provider jar). 
 
 ### Build
-Build your code by *compiling* it with dependencies. Build your jar by *bundling* it with bnd generated `MAIFEST.MF` file and bnd extracted packages (and resources) from the compiled bytecode.
+Build your code by *compiling* it with dependencies. Build your jar by *bundling* it with bnd generated `MAIFEST.MF` file and bnd extracted packages (and resources) from the compiled bytecode. It is important to know that, by default, the bnd build tool doesn't concern compiling Java code, it only pulls compiled packages out of the bnd sub project's `/bin` folder, the 3rd party jars (through `-classpath:` in `bnd.bnd`) and classes from jars in bnd repos (through `-buildpath:` in `bnd.bnd`) and put them into the final bundle jar.
 
 **Principal 1**: Remember, whoever compiles the code, knows the dependencies (both within a sub project and across the workspace). This is achievable by either using the **IntelliJ IDEA** IDE or, for headless builds, the **SBT** build tool or the not so new **Gradle** tool or even the good old **Maven** tool.
 
@@ -169,61 +179,51 @@ Build your code by *compiling* it with dependencies. Build your jar by *bundling
 
 Both processes can use Maven Central, however, they are different processes in nature. If you are wondering how we could *smartly* combine these two process with just a single control point (like an Maven index that looks like `packages.json` in NPM or `requirement.txt` in pip) then we are with you. The extra tooling you will be looking for is the available bnd plugins in Gradle or Maven. Still, your ignorance will be punished by OSGi and bnd because they *hate* inexplicit-ness (e.g transitive dependencies). None of the work mentioned saves the trouble to maintain your `*.bnd` meta file content (well, specifying same thing in *Groovy* or *XML* isn't going to cut it, is it?). 
 
+In short, (after you have sorted out the `bnd.bnd` meta file) here is the sub `<proj>` build process:
+
+1. Execute the `gradle :<proj>:build` task on your sub project either from the IDE or the command-line.
+
+That's it! The built bundle (bundles, if you have more than 1 `*.bnd` file) will be put into `/runtime/bundle/hot-deploy/subprojects` folder and be picked up by the *File Install* felix bundle for auto install and start.
+
 
 #### Compile it
 It is Java, so you need to compile the code into bytecode before it can be packed by bnd into bundle jars. There are two ways to compile your sub project code--IDE and headless.
+
+Note that normally, you should **NOT** concern yourself with the compile phase in the build process.
 
 
 ##### Compile through IDE
 Since we have setup our bnd workplace sub projects as **IntelliJ IDEA** IDE project **Module**s throught the **idea Gradle plugin**, it is very easy to compile the code, just click **Build Module `<proj>`** in the right-clicking menu on your **Module**.
 
 ##### Compile headlessly
-Listing the subprojects with Gradle
+Compile a sub project with Gradle
 ```
-cd ./subprojects
-gradle projects
+gradle :<proj>:classes
 ```
 
-Build a project
+Build a sub project (including compiling and jaring)
 ```
-cd ./subprojects
 gradle :<proj>:build
 ```
 
-To make Gradle use a local folder (e.g `subprojects/<proj>/myLibs`) of jars as dependency, add the following into the sub project's `build.gradle`
+To make Gradle use a local folder of jars (e.g `subprojects/<proj>/myLibs/*.jar`) as dependency, add the following into the sub project's `build.gradle`
 ```
 dependencies {
     compile fileTree(dir: 'myLibs', include: '*.jar')
 }
 ```
 
-Note that we have pre-configured our Gradle build to use default bnd project layout.
+Note that we have pre-configured our Gradle tasks and IntelliJ IDEA Module to use the default bnd project layout. Your build and compile tasks will output classes into `bin` and `bin_test` folders and output jars and intermediate files into `generated` folder within any sub project.
 
 
 #### Bundle it
-Notice that we didn't use any IDE feature to pack the sub project jars (a.k.a bundles). Instead, we will use bnd in command line. The **IntelliJ IDEA** IDE offers a nice **Terminal** tab for you to keep focusing within the workspace and use the system command line for bnd jar packing. 
+Notice that we didn't use any IDE feature to pack the sub project jars (a.k.a OSGi bundles). Instead, we will use bnd in command line. The **IntelliJ IDEA** IDE offers a nice **Terminal** tab for you to keep focusing within the workspace and use the system command line for bnd jar packing. 
 
 You will find that developing your bundle sub project is relatively straightforward with dependency jars pulled directly as libraries from Maven Central up till code compilation, afterwards, it comes to actually building the bundle (basically a normal jar with `MANIFEST.MF` file specifying packages visibilites and versioning) we will need bnd to help generate the `MANIFEST.MF` and pack it with compiled Java bytecode into a jar. You can think of *build* in bnd as OSGi metadata generation (the label) plus bytecode Java packages (the goods) extraction. 
 
 The bnd build tool doesn't know which packages (again, the whole OSGi and bnd tooling thing is about Java packages) to include in the jar except for those that comes from sub project `/bin`. To let bnd work extra, in each of the sub project we have a `bnd.bnd` file to specify `-buildpath`/`-classpath`, `-includeresource` bnd instructions and `Export-Package`/`Private-Package`, `Bundle-Version` bnd headers. These are for collecting packages from various other targets (bnd repos or *.jar) and expose selected packages in the final OSGi bundle. You will most likely use `Export-Package` at least in your `bnd.bnd` project bundle meta file.
 
-**Tip**: As we have mentioned, the bundling process doesn't concern compile time dependencies. However, there are times when you do need to bundle some packages that come from the 3rd party jars. With `-buildpath` specified packages in `bnd.bnd` the bnd tool only searches bnd repos to include those. If you also want it to include packages from a 3rd party jar folder, use `-classpath` with bnd macro `${lsr;${workspace}/cnf/libs;*.jar}` to add them. If the 3rd party package somehow doesn't like your final bundle folder structure, use `-includeresource` instead with the `@jar/cnf/libs/<any>.jar` unpack helper to add the packages with original folder structures merged in your final jar. The known fastest way of repacking 3rd party bundles into yours is through the `-includeresource` bnd instruction.
-
-In short, (after you have sorted out the `bnd.bnd` meta file) here is the sub `<proj>` build process:
-
-1. Execute the `build` task on your sub project either from the IDE or the command-line.
-
-That's it! The built bundle (bundles, if you have more than 1 `*.bnd` file) will be put into `/runtime/bundle/hot-deploy/subprojects` folder and be picked up by the *File Install* felix bundle for auto install and start.
-
-**Tip**: Repeat the build steps when your code changes. This will automatically update the old deployment of the bundle jar in the runtime. You can remove the deployed bundle/dep jars from `/runtime/bundle/hot-deploy` to undeploy them. You can change the polling threshold by changing the following configure of the OSGi runtime
-```
-# /runtime/conf/config.properties
-...
-
-felix.fileinstall.poll=2000
-...
-
-```
+**Tip**: As we have mentioned, the bundling process doesn't concern compile time dependencies. However, there are times when you do need to bundle some packages that come from the 3rd party jars. With `-buildpath` specified packages in `bnd.bnd` the bnd tool only searches bnd repos to include those. If you also want it to include packages from a 3rd party jar folder, use `-classpath` with bnd macro `${lsr;${workspace}/cnf/libs;*.jar}` to add them. If the 3rd party package somehow doesn't like your final bundle folder structure, use `-includeresource` instead with the `@jar/cnf/libs/<any>.jar` unpack helper to add the packages with original folder structures merged in your final jar. The known fastest way of repacking 3rd party bundles into yours is through the `-includeresource` bnd instruction in the `bnd.bnd` meta file in a sub project.
 
 
 ### Deploy

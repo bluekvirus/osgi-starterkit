@@ -23,6 +23,7 @@ Change Log
 
 working on ...
 
+* docs folder with lektor; (OSGi premier, Jersey, Libs and base projects)
 * docker containers;
 * session sub project; (account/user, role/permission ==> jwttoken, session)
 * db sub project; (K-V, JSON/Doc, SQL, BigTable, Graph)
