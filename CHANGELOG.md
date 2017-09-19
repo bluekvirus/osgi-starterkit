@@ -24,12 +24,9 @@ Change Log
 working on ...
 
 * docs folder with lektor; (OSGi premier, Jersey, Libs and base projects)
-* docker containers;
+* docker containers; (phase 1: api-gateway, jre, db, cache/cfg, rsa)
 * session sub project; (account/user, role/permission ==> jwttoken, session)
-* db sub project; (K-V, JSON/Doc, SQL, BigTable, Graph)
-* explain the libs (compile, deploy);
-* task/controller sub project; (Akka)
-* stream sub project; (Logstash, Kafka)
+* stream/task sub project; (Logstash, Kafka)
 * search sub project; (ElasticSearch)
-* local deploy bnd repo instead of `mv bundle.jar`;
+* controller sub project; (Akka)
 * auto runtime bundles prep script;
