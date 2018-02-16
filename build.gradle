@@ -76,18 +76,18 @@ subprojects {
         main {
             java {
                 srcDirs = ['src/java']
+                sourceSets.main.output.classesDir = 'bin'             
             }
             scala {
                 srcDirs = ['src/scala']
             }
             kotlin {
                 srcDirs = ['src/kotlin']
+                sourceSets.main.output.classesDir = 'classes/kotlin/main'             
             }
             resources {
                 srcDirs = ['src/resources']
             }
-            output.classesDir = 'bin'
-                
         }
         test {
             java {
@@ -149,7 +149,7 @@ task syncLibs(type: Copy, dependsOn: clearLibs) {
 //use `gradle -q <proj:>properties` to check
 buildscript {
     ext.scala_version = '2.12.3'
-    ext.kotlin_version = '1.1.3-2'
+    ext.kotlin_version = '1.2.21'
 
     repositories {
         jcenter()
